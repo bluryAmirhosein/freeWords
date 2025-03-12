@@ -90,6 +90,16 @@ class BlogPostDetailView(DetailView):
             cache.set(top_liked_posts_cache_key, top_liked_posts, timeout=21600)
         context['top_liked_posts'] = top_liked_posts
 
+        user = self.request.user
+        context['is_liked'] = False
+        if user.is_authenticated:
+            user_like_cache_key = f'user_like_{user.id}_liked_post_{post_id}'
+            is_liked = cache.get(user_like_cache_key)
+            if is_liked is None:
+                is_liked = PostLike.objects.filter(user=self.request.user, post=post_id).exists()
+                cache.set(user_like_cache_key, is_liked, timeout=3600)
+            context['is_liked'] = is_liked
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -202,11 +212,11 @@ class LikePostView(View):
             messages.info(request, 'Please login to like this post.')
             return redirect('core:post-detail', pk=post.pk, slug=post.slug)
 
-        existing_like = PostLike.objects.filter(user=request.user, post=post).delete()
+        existing_like = PostLike.objects.filter(user=request.user, post=post)
 
-        # if existing_like.exists():
-        if existing_like[0] > 0:
-            # existing_like.delete()
+        if existing_like.exists():
+        # if existing_like[0] > 0:
+            existing_like.delete()
             messages.success(request, 'You have unliked this post.')
         else:
             PostLike.objects.create(user=request.user, post=post)

@@ -43,3 +43,8 @@ def update_likes_cache(sender, instance, **kwargs):
 def update_comments_cache(sender, instance, **kwargs):
     cache_key = 'approved_comments'
     cache.delete(cache_key)
+
+@receiver([post_save, post_delete], sender=PostLike)
+def update_user_liked_post_cache(sender, instance, **kwargs):
+    cache_key = f'user_like_{instance.user.id}_liked_post_{instance.post_id}'
+    cache.delete(cache_key)

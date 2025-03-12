@@ -57,7 +57,7 @@ body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
             <div class="w3-col m6 s12">
               <form action="{% url 'core:like-post' pk=post.pk slug=post.slug %}" method="post" style="display: inline-block;">
                 {% csrf_token %}
-                  {% if post.likes.all %}
+                  {% if is_liked %}
                   <button class="w3-button w3-padding-large w3-white w3-border w3-button-custom" type="submit"><b>Don`t Like</b></button>
                 {% else %}
                   <button class="w3-button w3-padding-large w3-white w3-border w3-button-custom" type="submit"><b>Like</b></button>
