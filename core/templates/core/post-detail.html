@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block extera_style %}
+body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+.w3-button-custom {
+  border-color: #4CAF50;
+  color: #4CAF50;
+}
+.w3-button-custom:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+.w3-button-delete {
+  border-color: #f44336;
+  color: #f44336;
+}
+.w3-button-delete:hover {
+  background-color: #f44336;
+  color: white;
+}
+.w3-reply {
+  margin-left: 30px; /* Makes the reply indented */
+  padding-left: 15px;
+  margin-top: 10px;
+}
+.reply-form {
+  display: none; /* Hidden by default */
+  margin-top: 10px;
+}
+
+{% endblock %}
+
+{% block content %}
+<div class="w3-content" style="max-width:1400px">
+  <!-- Header -->
+  <header class="w3-container w3-center w3-padding-32">
+    <h1><b>FREE WORDS</b></h1>
+    <p>Welcome to the blog of <span class="w3-tag">unknown</span></p>
+  </header>
+
+  <!-- Post Details -->
+  <div class="w3-row">
+    <div class="w3-col l8 s12">
+      <div class="w3-card-4 w3-margin w3-white">
+        <img src="{{ post.cover_image.url }}" alt="Nature" style="width:100%">
+        <div class="w3-container">
+          <h3><b>{{ post.title_heading }}</b></h3>
+          <h5>{{ post.title_description }}, <span class="w3-opacity">[{{ post.created_at }}]</span></h5>
+          <p><b>Likes:</b> <span id="like-count">{{ post.likes.count }}</span> | <b>Views:</b> <span id="view-count">123</span></p>
+        </div>
+        <div class="w3-container">
+          <p><b>Full Article:</b></p>
+          <p>{{ post.description | safe }}</p>
+        </div>
+        <div class="w3-container w3-padding-16">
+          <div class="w3-row">
+            <div class="w3-col m6 s12">
+              <form action="{% url 'core:like-post' pk=post.pk slug=post.slug %}" method="post" style="display: inline-block;">
+                {% csrf_token %}
+                  {% if post.likes.all %}
+                  <button class="w3-button w3-padding-large w3-white w3-border w3-button-custom" type="submit"><b>Don`t Like</b></button>
+                {% else %}
+                  <button class="w3-button w3-padding-large w3-white w3-border w3-button-custom" type="submit"><b>Like</b></button>
+                {% endif %}
+              </form>
+                <button class="w3-button w3-padding-large w3-white w3-border w3-button-custom" id="share-button"><b>Share</b></button>
+            </div>
+            <div class="w3-col m6 s12">
+              <p><span class="w3-padding-large w3-right"><b>Comments </b><span class="w3-tag">{{ post.comments.count }}</span></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="w3-card-4 w3-margin w3-white">
+        <div class="w3-container w3-padding">
+          <h4><b>Add a Comment:</b></h4>
+
+          <!-- Add Comment Form -->
+          <form id="comment-form" class="w3-container" method="post">
+              {% csrf_token %}
+            <label for="id_content" class="w3-text"><b>Your Comment:</b></label>
+            <textarea name="content" id="id_content" rows="4" class="w3-input w3-border w3-round" placeholder="Write your comment here..." required></textarea>
+            <button type="submit" name="new_comment" class="w3-button w3-padding-large w3-white w3-border w3-button-custom w3-margin-top"><b>Post Comment</b></button>
+          </form>
+          <hr>
+
+          <!-- Display Comments -->
+          <h4><b>Comments</b></h4>
+          <div id="comments-list" class="w3-container">
+          {% for comment in comments %}
+            {% if comment.is_reply == False and comment.is_approved == True %}
+            <div class="w3-border w3-padding w3-margin-bottom">
+                <p><b>{{ comment.user.full_name }}:</b> {{ comment.content }} [{{ comment.created_at }}]</p>
+              <!-- Edit Button and Delete Button -->
+              {% if comment.user == request.user %}
+              <button class="w3-button w3-padding-small w3-white w3-border w3-button-custom" onclick="toggleEditForm({{ comment.id }})">Edit</button>
+              <a href="{% url 'core:delete-comment' comment.id %}" type="submit" class="w3-button w3-padding-small w3-white w3-border w3-button-delete" onclick="deleteComment({{ comment.id }})">Delete</a>
+              {% endif %}
+
+              <!-- Reply Button -->
+              <button class="w3-button w3-padding-small w3-white w3-border w3-button-custom" onclick="toggleReplyForm({{ comment.id }})">Reply</button>
+
+              <!-- Edit Form (Hidden by Default) -->
+              <form id="edit-form-{{ comment.id }}" class="w3-container" method="post" style="display: none; margin-top: 10px;">
+                  {% csrf_token %}
+                <textarea name="content" class="w3-input w3-border w3-round">{{ comment.content }}</textarea>
+                <input type="hidden" name="comment_id" value="{{ comment.id }}">
+                <button type="submit" name="edit_comment" class="w3-button w3-padding-small w3-white w3-border w3-button-custom w3-margin-top"><b>Save</b></button>
+              </form>
+
+              <!-- Reply Form (Hidden by Default) -->
+                <form action="{% url 'core:reply-comment' post.id comment.id %}" id="reply-form-{{ comment.id }}" class="w3-container" method="post" style="display: none; margin-top: 10px;">
+                  {% csrf_token %}
+                <textarea name="content" id="id_content" class="w3-input w3-border w3-round"></textarea>
+                <input type="hidden" name="comment_id" value="{{ comment.id }}">
+                <button type="submit" name="edit_comment" class="w3-button w3-padding-small w3-white w3-border w3-button-custom w3-margin-top"><b>Save</b></button>
+              </form>
+
+
+              <!-- Display Replies -->
+              {% for reply in comment.replies.all %}
+              <div class="w3-reply">
+
+                {% if reply.is_reply == True and reply.is_approved == True %}
+                  <p><b>{{ reply.user.full_name }} (Reply):</b> {{ reply.content }} [{{ reply.created_at }}]
+                    {% if reply.user == request.user %}
+                        <button class="w3-button w3-padding-small w3-white w3-border w3-button-custom" onclick="toggleEditReplyForm({{ reply.id }})">Edit</button>
+                        <a href="{% url 'core:delete-reply' reply.id %}" class="w3-button w3-padding-small w3-white w3-border w3-button-custom">Delete</a> </p>
+                    {% endif %}
+              {% endif %}
+                  <form id="edit-reply-form-{{ reply.id }}" class="w3-container reply-form" method="post"
+                        action="{% url 'core:reply-comment' post.id comment.id %}" style="display: none; margin-top: 10px;">
+                        {% csrf_token %}
+                        <textarea name="content" class="w3-input w3-border w3-round">{{ reply.content }}</textarea>
+                        <input type="hidden" name="reply_id" value="{{ reply.id }}">
+                        <button type="submit" name="edit_reply" class="w3-button w3-padding-small w3-white w3-border w3-button-custom w3-margin-top">Save</button>
+                    </form>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="w3-col l4">
+      <!-- Popular Posts -->
+      <div class="w3-card w3-margin">
+        <div class="w3-container w3-padding">
+          <h4>Popular Posts</h4>
+        </div>
+        <ul class="w3-ul w3-hoverable w3-white">
+            {% for post in top_liked_posts %}
+          <li class="w3-padding-16">
+          <a href="{% url 'core:post-detail' post.id post.slug %}" style="text-decoration: none;">
+            <img src="{{ post.cover_image.url }}" alt="Image" class="w3-left w3-margin-right" style="width:50px; height: 50px; object-fit: cover;">
+            <span class="w3-large">{{ post.title_heading }}</span><br>
+            <span>{{ post.title_description }}</span>
+          </a>
+          </li>
+            {% endfor %}
+        </ul>
+      </div>
+      <hr>
+
+      <!-- Tags -->
+      <div class="w3-card w3-margin">
+        <div class="w3-container w3-padding">
+          <h4>Post Tags</h4>
+        </div>
+        <div class="w3-container w3-white">
+             <p>
+                 {% for tag in post.tags.all %}
+                 {% if forloop.counter == 1 %}
+                 <span class="w3-tag w3-black w3-margin-bottom">{{ tag.name }}</span>
+                 {% else %}
+                 <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">{{ tag.name}}</span>
+                 {% endif %}
+                 {% endfor %}
+             </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+function addComment() {
+    const commentInput = document.getElementById('id_content');
+    const commentText = commentInput.value.trim();
+        if (commentText) {
+          const commentList = document.getElementById('id_content');
+          const newComment = document.createElement('p');
+          newComment.innerHTML = `<b>You:</b> ${commentText}`;
+          commentList.appendChild(newComment);
+          commentInput.value = '';
+        } else {
+          alert('Please write a comment before posting.');
+        }
+      }
+function toggleEditForm(commentId) {
+    const form = document.getElementById(`edit-form-${commentId}`);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+function toggleReplyForm(commentId) {
+    const form = document.getElementById(`reply-form-${commentId}`);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+    function toggleEditReplyForm(replyId) {
+    const form = document.getElementById(`edit-reply-form-${replyId}`);
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function deleteComment(commentId) {
+    const commentElement = document.getElementById(`comment-${commentId}`);
+    commentElement.remove();
+}
+
+document.getElementById("share-button").addEventListener("click", function() {
+    if (navigator.share) {
+        navigator.share({
+            title: document.title,  // عنوان پست
+            text: "Check out this blog post!",  // توضیحات اختیاری
+            url: window.location.href  // لینک پست جاری
+        })
+        .then(() => console.log("Post shared successfully"))
+        .catch((error) => console.log("Error sharing post:", error));
+    } else {
+        alert("Sharing is not supported on this device.");
+    }
+});
+
+{% endblock %}

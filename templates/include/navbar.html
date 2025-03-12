@@ -1,0 +1,31 @@
+
+<!-- Navbar -->
+<div class="w3-bar w3-black w3-large w3-center" style="display: flex; justify-content: center; align-items: center;">
+  <a href="{% url 'core:home' %}" class="w3-bar-item w3-button w3-hover-grey" style="padding:22px 24px ;">
+      <i class="fas fa-home"></i> Home
+  </a>
+  <a href="{% url 'core:posts' %}" class="w3-bar-item w3-button w3-hover-grey" style="padding:22px 24px ;">
+      <i class="fas fa-newspaper"></i> Posts
+  </a>
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'account:logout' %}" class="w3-bar-item w3-button w3-hover-grey" style="padding:22px 24px ;">
+        <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    {% else %}
+        <a href="{% url 'account:login' %}" class="w3-bar-item w3-button w3-hover-grey" style="padding:22px 24px ;">
+        <i class="fas fa-sign-in-alt"></i> Login
+        </a>
+        <a href="{% url 'account:signup' %}" class="w3-bar-item w3-button w3-hover-grey" style="padding:22px 24px ;">
+        <i class="fas fa-user-plus"></i> Signup
+        </a>
+
+    {% endif %}
+{% if user.is_authenticated %}
+  <a href="{% url 'account:profile-user' request.user.id %}" class="w3-bar-item w3-button w3-hover-grey" style="padding:22px 24px ;">
+      <i class="fas fa-user"></i> Profile
+  </a>
+{% endif %}
+  <a href="#about-us" class="w3-bar-item w3-button w3-hover-grey" style="padding:22px 24px ;">
+    <i class="fas fa-info-circle"></i> About Us
+  </a>
+</div>

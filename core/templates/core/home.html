@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load cropping %}
+
+{% block extera_style %}
+
+.pagination .w3-button {
+    margin: 0 5px;
+
+}
+
+.pagination .w3-button.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+{% endblock %}
+
+{% block content %}
+
+    <!-- w3-content defines a container for fixed size centered content,
+and is wrapped around the whole page content, except for the footer in this example -->
+<div class="w3-content" style="max-width:1400px">
+
+<!-- Header -->
+<header class="w3-container w3-center w3-padding-32">
+  <h1><b>FREE WORDS</b></h1>
+  <p>Welcome to the blog of <span class="w3-tag">unknown</span></p>
+</header>
+
+<!-- Grid -->
+<div class="w3-row">
+
+<!-- Blog entries -->
+<div class="w3-col l8 s12">
+  <!-- Blog entry -->
+    {% for o in obj %}
+  <div class="w3-card-4 w3-margin w3-white">
+    <img src="{{ o.cover_image.url }}" alt="Nature" style="width:100%">
+    <div class="w3-container">
+      <h3><b>{{ o.title_heading}}</b></h3>
+      <h5>{{ o.title_description }}, <span class="w3-opacity">{{ o.created_at}}</span></h5>
+    </div>
+
+    <div class="w3-container">
+      <p>{{ o.description| slice:"0:350" | safe }} <strong>. . .</strong></p>
+      <div class="w3-row">
+        <div class="w3-col m8 s12">
+          <p><a href="{{ o.get_absolute_url }}" class="w3-button w3-padding-large w3-white w3-border"><b>READ MORE »</b></a></p>
+        </div>
+        <div class="w3-col m4 w3-hide-small">
+          <p><span class="w3-padding-large w3-right"><b>Comments  </b> <span class="w3-tag">{{ o.approved_comments }}</span></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+{% endfor %}
+
+<!-- END BLOG ENTRIES -->
+</div>
+
+<!-- Introduction menu -->
+
+<div class="w3-col l4">
+  <!-- About Card -->
+{% if profile %}
+  <div class="w3-card w3-margin w3-margin-top">
+
+  <img src="{{ profile.photo.url }}" style="width:100%">
+    <div class="w3-container w3-white">
+      <h4><b>{{ profile.user.full_name}}</b></h4>
+      <p>{{ profile.bio }}</p>
+      <p><a href="{% url 'account:profile-user' request.user.id %}" class="w3-button w3-padding-large w3-white w3-border"><b>VISIT PROFILE »</b></a></p>
+      </div>
+
+  </div><hr>
+{% endif %}
+  <!-- Posts -->
+  <div class="w3-card w3-margin">
+    <div class="w3-container w3-padding">
+      <h4>Popular Posts</h4>
+    </div>
+    <ul class="w3-ul w3-hoverable w3-white">
+        {% for post in top_liked_posts %}
+          <li class="w3-padding-16">
+          <a href="{% url 'core:post-detail' post.id post.slug %}" style="text-decoration: none;">
+            <img src="{{ post.cover_image.url }}" alt="Image" class="w3-left w3-margin-right" style="width:50px; height: 50px; object-fit: cover;">
+            <span class="w3-large">{{ post.title_heading }}</span><br>
+            <span>{{ post.title_description }}</span>
+          </a>
+          </li>
+        {% endfor %}
+    </ul>
+  </div>
+  <hr>
+
+  <!-- Labels / tags -->
+  <div class="w3-card w3-margin">
+    <div class="w3-container w3-padding">
+      <h4>Popular Tags</h4>
+    </div>
+    <div class="w3-container w3-white">
+    <p>
+        {% for tag in top_tags_posts%}
+            {% if forloop.counter <= 5 %}
+            <span class="w3-tag w3-black w3-margin-bottom">{{ tag.name }}</span> {% else %} <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">{{ tag.name}}</span>
+            {% endif %}
+        {% endfor %}
+    </p>
+    </div>
+  </div>
+
+<!-- END Introduction Menu -->
+</div>
+
+<!-- END GRID -->
+</div><br>
+
+<div class="w3-center pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1" class=" w3-margin-bottom">&laquo; first</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="w3-button w3-black w3-padding-large w3-margin-bottom">Previous</a>
+    {% else %}
+        <span class="w3-margin-bottom disabled">&laquo; first</span>
+        <span class="w3-button w3-gray w3-padding-large w3-margin-bottom disabled">Previous</span>
+    {% endif %}
+
+    <strong class="w3-button w3-white w3-padding-large w3-margin-bottom current">
+        {{ page_obj.number }}
+    </strong>
+
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="w3-button w3-black w3-padding-large w3-margin-bottom">Next »</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class=" w3-margin-bottom">Last &raquo</a>
+    {% else %}
+        <span class="w3-button w3-gray w3-padding-large w3-margin-bottom disabled">Next »</span>
+        <span class="w3-margin-bottom disabled">Last &raquo</span>
+    {% endif %}
+</div>
+
+
+<!-- END w3-content -->
+</div>
+
+{% endblock %}

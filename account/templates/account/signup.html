@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block extera_style %}
+    body, h1 {font-family: "Raleway", sans-serif}
+
+    .signup-container {
+      width: 100%;
+      max-width: 400px;
+      background-color: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .signup-container h1 {
+      text-align: center;
+      color: #444;
+      margin-bottom: 10px;
+    }
+    .signup-container p {
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    .signup-container button {
+      width: 100%;
+    }
+     .input-error {
+        border-color: #f44336 !important;
+        background-color: #fdecea;
+      }
+      .error-message {
+      color: #f44336;
+      font-size: 12px;
+      margin: 5px 0 5px 0;
+      padding-left: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+
+{% endblock %}
+
+{% block content %}
+
+<div class="signup-container w3-card">
+  <h1>Create Your Account</h1>
+  <p><span class="w3-tag">SIGN UP</span> today and start your journey. It's quick and easy!</p>
+  <form method="post" class="w3-container" novalidate>
+    {% csrf_token %}
+
+    <label for="id_full_name" class="w3-text-grey"><b>Full Name</b></label>
+    {% if form.full_name.errors %}
+      <p class="error-message">{{ form.full_name.errors.0 }}</p>
+    {% endif %}
+    <input id="id_full_name" value="{{ request.POST.full_name }}" name="full_name" type="text" class="w3-input w3-border {% if form.full_name.errors %}input-error{% endif %} w3-margin-bottom" placeholder="Enter your full name" required>
+
+    <label for="id_email" class="w3-text-grey"><b>Email Address</b></label>
+    {% if form.email.errors %}
+      <p class="error-message">{{ form.email.errors.0 }}</p>
+    {% endif %}
+    <input id="id_email" value="{{ request.POST.email }}" name="email" type="email" class="w3-input w3-border {% if form.email.errors %}input-error{% endif %} w3-margin-bottom" placeholder="Enter your email" required>
+
+    <label for="id_username" class="w3-text-grey"><b>Username</b></label>
+    {% if form.username.errors %}
+      <p class="error-message">{{ form.username.errors.0 }}</p>
+    {% endif %}
+    <input id="id_username" value="{{ request.POST.username }}" name="username" type="text" class="w3-input w3-border {% if form.username.errors %}input-error{% endif %} w3-margin-bottom" placeholder="Choose a username" required>
+
+    <label for="id_password" class="w3-text-grey"><b>Password</b></label>
+    {% if form.password.errors %}
+      <p class="error-message">{{ form.password.errors.0 }}</p>
+    {% endif %}
+    <input id="id_password" name="password" type="password" class="w3-input w3-border {% if form.password.errors %}input-error{% endif %} w3-margin-bottom" placeholder="Create a password" required>
+
+    <label for="id_confirm_password" class="w3-text-grey"><b>Confirm Password</b></label>
+    {% if form.confirm_password.errors %}
+      <p class="error-message">{{ form.confirm_password.errors.0 }}</p>
+    {% endif %}
+    <input id="id_confirm_password" name="confirm_password" type="password" class="w3-input w3-border {% if form.confirm_password.errors %}input-error{% endif %} w3-margin-bottom" placeholder="Confirm your password" required>
+
+    <button type="submit" class="w3-button w3-black w3-margin-top">Sign Up</button>
+  </form>
+  <div class="w3-margin-top w3-center">
+    <p class="w3-small">Already have an account? <a href="{% url 'account:login' %}" class="w3-text-blue">Login here</a></p>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+
+  const inputs = document.querySelectorAll('.w3-input');
+  inputs.forEach(input => {
+    input.addEventListener('input', function () {
+      if (this.classList.contains('input-error')) {
+        this.classList.remove('input-error');
+      }
+    });
+  });
+
+{% endblock %}

@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+
+{% block extera_style %}
+    body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+    html, body {
+      height: 100%;
+      margin: 0;
+      flex-direction: column;
+    }
+    .w3-content {
+      flex: 1;
+    }
+     .edit-field {
+      display: none;
+    }
+    #editBtn{
+      margin-bottom: 10px;
+    }
+    #saveBtn{
+      margin-bottom: 10px;
+    }
+    #profileImage {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .go-to-post-btn {
+      background-color: white;
+      color: black;
+      border: 1px solid #333;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 10px;
+    }
+    .go-to-post-btn:hover {
+      background-color: black;
+      color: white;
+    }
+{% endblock %}
+
+{% block content %}
+    <div class="w3-content" style="max-width:1400px">
+      <!-- Profile Information -->
+    {% if request.user.is_staff %}
+      <header class="w3-container w3-center w3-padding-32">
+        <h1><b>Admin Profile</b></h1>
+        <p>Wellcome Admin</p>
+      </header>
+
+      <div class="w3-row">
+        <!-- User Info Section -->
+        <div class="w3-col l8 s12">
+          <div class="w3-card-4 w3-margin w3-white">
+            <div class="w3-container">
+              <h3><b>Personal Information</b></h3>
+                <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                      <div class="w3-center">
+                        <img id="profileImage" src="{{ profile.photo.url }}" alt="Profile Image" class="w3-circle" />
+                        <br />
+                        <button type="button" class="w3-button w3-white w3-border" onclick="changeProfileImage()">Change Profile Image</button>
+                        <input type="file" name="photo" id="id_photo" class="edit-field" accept="image/*" onchange="previewImage(event)" style="display: none;" />
+                      </div>
+                <div class="w3-container">
+                    <p><strong>Full Name:</strong>
+                        <span id="full_name">{{ profile.user.full_name }}</span>
+                        <input name="full_name" type="text" id="id_full_name" class="edit-field" value="{{ profile.user.full_name }}" style="display: none;"/>
+                    </p>
+                    <p><strong>Bio:</strong>
+                        <span id="bio">{{ profile.bio }}</span>
+                        <textarea name="bio" id="id_bio" class="edit-field" rows="4" cols="50" style="display: none;">{{ profile.bio }}</textarea>
+                    </p>
+                    <button type="button" class="w3-button w3-white w3-border" id="editBtn">Edit</button>
+                    <button type="submit" class="w3-button w3-white w3-border" id="saveBtn" style="display: none;">Save</button>
+                </div>
+            </form>
+
+
+            </div>
+          </div>
+          <hr>
+
+          <!-- Account Information Section -->
+          <div class="w3-card-4 w3-margin w3-white">
+            <div class="w3-container">
+              <h3><b>Account Information</b></h3>
+              <div class="w3-container">
+                <p><strong>Username:</strong> <span id="username">{{ profile.user.username }}</span></p>
+                <p><strong>Email:</strong> <span id="email">{{ profile.user.email}}</span></p>
+                <p><strong>Join Date:</strong> <span id="joinDate">{{ profile.user.date_joined | date:"Y-m-d" }}</span></p>
+              </div>
+            </div>
+          </div>
+          <hr>
+        </div>
+
+
+        <!-- Admin Section for Comments Management -->
+        <div class="w3-col l4">
+          <div class="w3-card w3-margin w3-margin-top">
+            <div class="w3-container w3-white">
+              <h4><b>Manage Comments</b></h4>
+              <!-- Comment 1 -->
+              <div class="w3-container">
+                  {% for comment in comments %}
+                     <form method="post" action="{% url 'account:comment-management' comment.id %}">
+                     {% csrf_token %}
+                    <p><strong>{{ comment.user.full_name }}: </strong>{{ comment.content }}</p>
+                    <p><button type="submit" class="w3-button w3-white w3-border" name="action" value="approve">Yes</button> <button type="submit" class="w3-button w3-white w3-border" name="action" value="delete">No</button></p>
+                    </form>
+                  {% endfor %}
+              </div>
+              <hr>
+              <!-- Comment 2 -->
+              <h4><b>Manage Replies</b></h4>
+              <!-- Comment 1 -->
+                {% for reply in replies %}
+                  <form method="post" action="{% url 'account:comment-management' reply.id %}">
+                      {% csrf_token %}
+                  <div class="w3-container">
+                    <p><strong>{{ reply.user.full_name }}: </strong> {{ reply.content }}</p>
+                    <p><button type="submit" name="action" value="approve_reply" class="w3-button w3-white w3-border">Yes</button> <button type="submit" name="action" value="delete_reply" class="w3-button w3-white w3-border">No</button></p>
+                  </div>
+                  </form>
+                {% endfor %}
+            </div>
+
+          </div>
+
+          <!-- New Post Section -->
+          <div class="w3-card w3-margin w3-margin-top">
+            <div class="w3-container w3-white">
+              <h4><b>Want to Create a New Post?</b></h4>
+              <p>Do you want to write a new post?</p>
+              <a href="{% url 'core:post-creation' %}" class="go-to-post-btn">Go to Post Design</a>
+            </div>
+          </div>
+
+            <div class="w3-card w3-margin w3-margin-top">
+                <div class="w3-container w3-white">
+                  <h4><b>Edit or Delete?</b></h4>
+                  <p>You can Edit or Delete every post you want!</p>
+                  <a href="{% url 'core:posts' %}" class="go-to-post-btn">Post Management</a>
+                </div>
+            </div>
+        </div>
+ {% else %}
+      <header class="w3-container w3-center w3-padding-32">
+        <h1><b>P R O F I L E</b></h1>
+        <p>Wellcome {{ profile.user.full_name }}</p>
+      </header>
+    <div class="w3-row" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+        <!-- User Info Section -->
+        <div class="w3-col l8 s12">
+          <div class="w3-card-4 w3-margin w3-white">
+            <div class="w3-container">
+              <h3><b>Personal Information</b></h3>
+                <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                      <div class="w3-center">
+                        <img id="profileImage" src="{{ profile.photo.url }}" alt="Profile Image" class="w3-circle" />
+                        <br />
+                        <button type="button" class="w3-button w3-white w3-border" onclick="changeProfileImage()">Change Profile Image</button>
+                        <input type="file" name="photo" id="id_photo" class="edit-field" accept="image/*" onchange="previewImage(event)" style="display: none;" />
+                      </div>
+                <div class="w3-container">
+                    <p><strong>Full Name:</strong>
+                        <span id="full_name">{{ profile.user.full_name }}</span>
+                        <input name="full_name" type="text" id="id_full_name" class="edit-field" value="{{ profile.user.full_name }}" style="display: none;"/>
+                    </p>
+                    <p><strong>Bio:</strong>
+                        <span id="bio">{{ profile.bio }}</span>
+                        <textarea name="bio" id="id_bio" class="edit-field" rows="4" cols="50" style="display: none;">{{ profile.bio }}</textarea>
+                    </p>
+                    <button type="button" class="w3-button w3-white w3-border" id="editBtn">Edit</button>
+                    <button type="submit" class="w3-button w3-white w3-border" id="saveBtn" style="display: none;">Save</button>
+                </div>
+            </form>
+
+
+            </div>
+          </div>
+          <hr>
+
+          <!-- Account Information Section -->
+          <div class="w3-card-4 w3-margin w3-white">
+            <div class="w3-container">
+              <h3><b>Account Information</b></h3>
+              <div class="w3-container">
+                <p><strong>Username:</strong> <span id="username">{{ profile.user.username }}</span></p>
+                <p><strong>Email:</strong> <span id="email">{{ profile.user.email}}</span></p>
+                <p><strong>Join Date:</strong> <span id="joinDate">{{ profile.user.date_joined | date:"Y-m-d" }}</span></p>
+              </div>
+            </div>
+          </div>
+          <hr>
+        </div>
+{% endif %}
+          </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+
+
+function changeProfileImage() {
+  document.getElementById('id_photo').click();
+}
+
+function previewImage(event) {
+  var reader = new FileReader();
+  reader.onload = function () {
+    var output = document.getElementById('profileImage');
+    output.src = reader.result;
+
+    document.getElementById('editBtn').style.display = 'none';
+    document.getElementById('saveBtn').style.display = 'inline-block';
+  };
+  reader.readAsDataURL(event.target.files[0]);
+}
+document.addEventListener('DOMContentLoaded', function () {
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const fullNameField = document.getElementById('full_name');
+    const fullNameInput = document.getElementById('id_full_name');
+    const bioField = document.getElementById('bio');
+    const bioInput = document.getElementById('id_bio');
+
+    // When Edit button is clicked
+    editBtn.addEventListener('click', function () {
+        // Show input fields and hide the span text
+        fullNameField.style.display = 'none';
+        fullNameInput.style.display = 'inline-block';
+        bioField.style.display = 'none';
+        bioInput.style.display = 'block';
+
+        saveBtn.style.display = 'inline-block';
+        editBtn.style.display = 'none';
+    });
+
+    // When Save button is clicked (only for style changes)
+    saveBtn.addEventListener('click', function () {
+        // Show text fields again and hide the input fields
+        fullNameField.style.display = 'inline';
+        fullNameInput.style.display = 'none';
+        bioField.style.display = 'inline';
+        bioInput.style.display = 'none';
+
+        saveBtn.style.display = 'none';
+        editBtn.style.display = 'inline-block';
+    });
+});
+
+{% endblock %}
