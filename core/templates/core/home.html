@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load cropping %}
 
 {% block extera_style %}
@@ -64,8 +65,12 @@ and is wrapped around the whole page content, except for the footer in this exam
   <!-- About Card -->
 {% if profile %}
   <div class="w3-card w3-margin w3-margin-top">
-
-  <img src="{{ profile.photo.url }}" style="width:100%">
+  {% if profile.photo %}
+      <img src="{{ profile.photo.url }}" style="width:100%">
+  {% else %}
+      <img id="profileImage" src="{% static 'images/default-avatar.png' %}" style="width:100%">
+  {% endif %}
+{#  <img src="{{ profile.photo.url }}" style="width:100%">#}
     <div class="w3-container w3-white">
       <h4><b>{{ profile.user.full_name}}</b></h4>
       <p>{{ profile.bio }}</p>

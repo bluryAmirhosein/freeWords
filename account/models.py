@@ -3,7 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CustomUser(AbstractUser):
-    full_name = models.CharField(max_length=255)
+    full_name = models.CharField(max_length=255, null=True, blank=True, default="")
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=255, unique=True)
 
@@ -14,7 +14,7 @@ class CustomUser(AbstractUser):
 class ProfileUser(models.Model):
     user = models.ForeignKey(CustomUser, models.CASCADE, related_name='profile')
     photo = models.ImageField(upload_to='blog/profile image/', blank=True, null=True, verbose_name='photo')
-    bio = models.TextField(max_length=500, blank=True, null=True)
+    bio = models.TextField(max_length=500, blank=True, null=True, default='')
     updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):

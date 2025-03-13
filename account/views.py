@@ -34,7 +34,7 @@ class SignupView(View):
         if form.is_valid():
             cd = form.cleaned_data
             # user = form.save(commit=False)
-            user = CustomUser.objects.create_user(cd['username'], cd['email'], cd['full_name'])
+            user = CustomUser.objects.create_user(cd['username'], cd['email'],)
             # user.set_username(form.cleaned_data['username'])
             # user.set_email(form.cleaned_data['email'])
             user.set_password(form.cleaned_data['password'])
@@ -169,7 +169,7 @@ class ProfileUserView(View):
         profile_user = cache.get(profile_user_cache_key)
 
         if not profile_user:
-            profile_user = get_object_or_404(ProfileUser, user=custom_user)
+            profile_user, created = ProfileUser.objects.get_or_create(user=custom_user)
             cache.set(profile_user_cache_key, profile_user, timeout=43200)
 
         user_form = CustomUserForm(instance=custom_user)

@@ -36,6 +36,20 @@
     .search-button:hover {
       background-color: #45a049;
     }
+
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      padding: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .blog-grid {
+        grid-template-columns: repeat(1, 1fr);
+      }
+    }
+
 {% endblock %}
 
 {% block content %}
@@ -58,10 +72,9 @@
   </div>
 
   <!-- Grid for blog entries -->
-  <div class="w3-row">
+<div class="blog-grid">
     <!-- Blog Content -->
-      {% for o in obj %}
-    <div class="w3-col l6 m6 s12">
+  {% for o in obj %}
       <div class="w3-card-4 w3-margin w3-white">
         <img src="{{ o.cover_image.url }}" alt="Nature" style="width:100%">
         <div class="w3-container">
@@ -86,9 +99,8 @@
           </div>
         </div>
       </div>
-    </div>
-      {% endfor %}
-  </div>
+    {% endfor %}
+</div>
 </div>
 </div>
 {% endblock %}

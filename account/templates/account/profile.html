@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block extera_style %}
     body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
@@ -62,7 +63,11 @@
                 <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                       <div class="w3-center">
-                        <img id="profileImage" src="{{ profile.photo.url }}" alt="Profile Image" class="w3-circle" />
+                          {% if profile.photo %}
+                            <img id="profileImage" src="{{ profile.photo.url }}" alt="Profile Image" class="w3-circle" />
+                          {% else %}
+                            <img id="profileImage" src="{% static 'images/default-avatar.png' %}" alt="Default Profile Image" class="w3-circle" />
+                          {% endif %}
                         <br />
                         <button type="button" class="w3-button w3-white w3-border" onclick="changeProfileImage()">Change Profile Image</button>
                         <input type="file" name="photo" id="id_photo" class="edit-field" accept="image/*" onchange="previewImage(event)" style="display: none;" />
@@ -164,7 +169,11 @@
                 <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                       <div class="w3-center">
-                        <img id="profileImage" src="{{ profile.photo.url }}" alt="Profile Image" class="w3-circle" />
+                          {% if profile.photo %}
+                            <img id="profileImage" src="{{ profile.photo.url }}" alt="Profile Image" class="w3-circle" />
+                          {% else %}
+                            <img id="profileImage" src="{% static 'images/default-avatar.png' %}" alt="Default Profile Image" class="w3-circle" />
+                          {% endif %}
                         <br />
                         <button type="button" class="w3-button w3-white w3-border" onclick="changeProfileImage()">Change Profile Image</button>
                         <input type="file" name="photo" id="id_photo" class="edit-field" accept="image/*" onchange="previewImage(event)" style="display: none;" />

@@ -50,12 +50,6 @@
   <form method="post" class="w3-container" novalidate>
     {% csrf_token %}
 
-    <label for="id_full_name" class="w3-text-grey"><b>Full Name</b></label>
-    {% if form.full_name.errors %}
-      <p class="error-message">{{ form.full_name.errors.0 }}</p>
-    {% endif %}
-    <input id="id_full_name" value="{{ request.POST.full_name }}" name="full_name" type="text" class="w3-input w3-border {% if form.full_name.errors %}input-error{% endif %} w3-margin-bottom" placeholder="Enter your full name" required>
-
     <label for="id_email" class="w3-text-grey"><b>Email Address</b></label>
     {% if form.email.errors %}
       <p class="error-message">{{ form.email.errors.0 }}</p>
