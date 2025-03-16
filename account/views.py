@@ -11,9 +11,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
-from django.conf import settings
+from .tasks import send_reset_email
 from .forms import UserProfileForm, CustomUserForm
 from core.models import Comment
 from django.core.cache import cache
@@ -101,12 +99,9 @@ class ForgetPasswordView(View):
                 domain = get_current_site(request).domain
                 reset_link = f'http://{domain}/account/reset-password/{uid}/{token}'
                 print(reset_link)
-                subject = 'Password Reset Request'
-                message = render_to_string('account/password-reset-email.html', {
-                    'user': user,
-                    'reset_link': reset_link,
-                })
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email])
+
+                send_reset_email.delay('Password Reset Request from FREEWORDS', email, reset_link, user.username)
+
                 messages.info(request, 'Please check your email. we send you a link to resting your password!')
                 return redirect('core:home')
             except CustomUser.DoesNotExist:
