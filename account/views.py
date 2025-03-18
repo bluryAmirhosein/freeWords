@@ -98,7 +98,7 @@ class ForgetPasswordView(View):
                 # link password
                 domain = get_current_site(request).domain
                 reset_link = f'http://{domain}/account/reset-password/{uid}/{token}'
-                print(reset_link)
+                # print(reset_link)
 
                 send_reset_email.delay('Password Reset Request from FREEWORDS', email, reset_link, user.username)
 

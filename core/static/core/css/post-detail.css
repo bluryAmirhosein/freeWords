@@ -1,0 +1,26 @@
+body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
+.w3-button-custom {
+  border-color: #4CAF50;
+  color: #4CAF50;
+}
+.w3-button-custom:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+.w3-button-delete {
+  border-color: #f44336;
+  color: #f44336;
+}
+.w3-button-delete:hover {
+  background-color: #f44336;
+  color: white;
+}
+.w3-reply {
+  margin-left: 30px; /* Makes the reply indented */
+  padding-left: 15px;
+  margin-top: 10px;
+}
+.reply-form {
+  display: none; /* Hidden by default */
+  margin-top: 10px;
+}

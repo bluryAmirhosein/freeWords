@@ -160,17 +160,25 @@ class BlogPostDetailViewTest(TestCase):
         self.assertIn('your comment was successfully edit!', messages)
 
     def test_top_liked_posts_cache(self):
-        popular_post = BlogPost.objects.create(title_heading='Popular Post', description='...', slug='popular')
+        popular_post = BlogPost.objects.create(
+            title_heading='Popular Post', description='...', slug='popular',
+            cover_image=SimpleUploadedFile("test_image.jpg", b"file_content")
+        )
+
         for _ in range(5):
-            PostLike.objects.get_or_create(user=self.user, post=self.post)
+            PostLike.objects.get_or_create(user=self.user, post=popular_post)
 
         cache_key = 'top_liked_posts'
+
+        cache.delete(cache_key)
+
         response = self.client.get(self.url)
+
         cached_posts = cache.get(cache_key)
 
-        self.assertIsNotNone(cached_posts)
-        self.assertIn(self.post, cached_posts)
-
+        self.assertIsNotNone(cached_posts, "Cached posts should not be None")
+        self.assertIsInstance(cached_posts, list, "Cached posts should be a list")
+        self.assertIn(popular_post, cached_posts, "Popular post should be in cached top liked posts")
 
 class ReplyCommentViewTest(TestCase):
     def setUp(self):
@@ -487,11 +495,9 @@ class PostsShowViewTests(TestCase):
             cover_image=cover_image,
         )
 
-        # ایجاد کامنت‌های تایید شده و تایید نشده
         Comment.objects.create(post=self.post1, user=self.user, content='Approved Comment', is_approved=True)
         Comment.objects.create(post=self.post1, user=self.user, content='Unapproved Comment', is_approved=False)
 
-        # ایجاد لایک
         PostLike.objects.create(user=self.user, post=self.post1)
 
         cache.clear()

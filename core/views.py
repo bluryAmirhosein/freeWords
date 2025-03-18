@@ -86,7 +86,7 @@ class BlogPostDetailView(DetailView):
         top_liked_posts = cache.get(top_liked_posts_cache_key)
 
         if not top_liked_posts:
-            top_liked_posts = BlogPost.objects.annotate(like_count=Count('likes')).order_by('-like_count')[:4]
+            top_liked_posts = list(BlogPost.objects.annotate(like_count=Count('likes')).order_by('-like_count')[:4])
             cache.set(top_liked_posts_cache_key, top_liked_posts, timeout=21600)
         context['top_liked_posts'] = top_liked_posts
 

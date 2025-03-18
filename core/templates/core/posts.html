@@ -1,55 +1,8 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block extera_style %}
-    body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
-    .w3-button-custom {
-      border-color: #4CAF50;
-      color: #4CAF50;
-    }
-    .w3-button-custom:hover {
-      background-color: #4CAF50;
-      color: white;
-    }
-    .search-container {
-      display: flex;
-      justify-content: center;
-      gap: 20px; /* فاصله بیشتر بین فیلد جستجو و دکمه */
-      margin-bottom: 32px;
-      max-width: 650px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .search-input {
-      flex: 1;
-      padding: 8px;
-      border: 2px solid #ccc;
-      border-radius: 0px;
-      font-size: 14px;
-    }
-    .search-button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 0px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .search-button:hover {
-      background-color: #45a049;
-    }
-
-    .blog-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      padding: 20px;
-    }
-
-    @media (max-width: 768px) {
-      .blog-grid {
-        grid-template-columns: repeat(1, 1fr);
-      }
-    }
-
+{% block extera_header %}
+    <link rel="stylesheet" href="{% static 'core/css/posts.css' %}">
 {% endblock %}
 
 {% block content %}
