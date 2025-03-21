@@ -12,56 +12,95 @@ from django.core.cache import cache
 
 
 class HomeView(ListView):
+    """
+    A view for displaying the homepage that includes a list of blog posts, approved comments count,
+    user profile, and top liked and tagged posts.
+
+    Model: BlogPost
+    Template: 'core/home.html'
+    Context Object Name: 'obj'
+    Items per Page: 5
+    """
     model = BlogPost
     template_name = 'core/home.html'
     context_object_name = 'obj'
     paginate_by = 5
 
     def get_context_data(self, **kwargs):
+        """
+        Adds additional data to the context, such as approved comments, user profile, top liked posts,
+        and top tags. It also uses caching to improve performance and reduce database queries.
+
+        Caches are used for storing approved comments, user profiles, top liked posts, and top tags
+        to improve website performance by reducing server load.
+        """
+        # Get the default context from the parent class (ListView)
         context = super().get_context_data(**kwargs)
 
+        # Cache key for storing approved comments per post
         comments_cache_key = 'approved_comments_per_post'
+
+        # Check if the approved comments are available in the cache
         comments = cache.get(comments_cache_key)
 
+        # If comments are not in the cache, retrieve them from the database
         if not comments:
             comments = BlogPost.objects.annotate(
                 approved_comments=Count('comments', filter=Q(comments__is_approved=True))
             ).values('id', 'approved_comments')
+            # Cache the results for 20 minutes
             cache.set(comments_cache_key, comments, timeout=1200)
 
+        # Convert the list of comments into a dictionary for faster access
         comment_dict = {item['id']: item['approved_comments'] for item in comments}
 
+        # Add the approved comments count to each post in the context
         for post in context['obj']:
             post.approved_comments = comment_dict.get(post.id, 0)
 
+        # Cache key for storing the user profile
         profile_cache_key = f"profile_{self.request.user.id}"
+
+        # Check if the profile is available in the cache
         profile = cache.get(profile_cache_key)
 
+        # If the profile is not in the cache, retrieve it from the database
         if profile is None:
             try:
                 profile = ProfileUser.objects.get(user=self.request.user.id)
+                # Cache the profile for 12 hours
                 cache.set(profile_cache_key, profile, timeout=43200)
             except ProfileUser.DoesNotExist:
                 profile = None
+                # Cache the result if the profile does not exist
                 cache.set(profile_cache_key, profile, timeout=43200)
 
+        # Add the profile to the context
         context['profile'] = profile
 
+        # Cache key for storing the top liked posts
         top_liked_posts = cache.get('top_liked_posts')
+
+        # If top liked posts are not in the cache, retrieve them from the database
         if not top_liked_posts:
             top_liked_posts = BlogPost.objects.annotate(like_count=Count('likes')).order_by('-like_count')[:4]
+            # Cache the results for 6 hours
             cache.set('top_liked_posts', top_liked_posts, timeout=21600)
+        # Add the top liked posts to the context
         context['top_liked_posts'] = top_liked_posts
 
+        # Cache key for storing the top tagged posts
         top_tags_posts = cache.get('top_tags_posts')
+
+        # If top tagged posts are not in the cache, retrieve them from the database
         if not top_tags_posts:
             top_tags_posts = Tag.objects.annotate(post_count=Count('blogpost')).order_by('-post_count')
+            # Cache the results for 6 hours
             cache.set('top_tags_posts', top_tags_posts, timeout=21600)
+        # Add the top tagged posts to the context
         context['top_tags_posts'] = top_tags_posts
 
         return context
-
-
 class BlogPostDetailView(DetailView):
     model = BlogPost
     template_name = 'core/post-detail.html'

@@ -1,0 +1,10 @@
+site_name: freeWords Documentation
+nav:
+  - Home: index.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [".."]
