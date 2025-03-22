@@ -157,7 +157,7 @@ class BlogPostDetailViewTest(TestCase):
         self.assertEqual(self.comment.content, 'Edited Comment')
 
         messages = [m.message for m in get_messages(response.wsgi_request)]
-        self.assertIn('your comment was successfully edit!', messages)
+        self.assertIn('Your comment was successfully edited!', messages)
 
     def test_top_liked_posts_cache(self):
         popular_post = BlogPost.objects.create(
@@ -462,7 +462,7 @@ class PostCreationViewTest(TestCase):
         self.client.login(username='admin', password='password')
         response = self.client.post(reverse('core:post-creation'), {})
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Please Enter valid information')
+        self.assertContains(response, 'Please enter valid information')
         self.assertIsInstance(response.context['form'], PostCreationForm)
         self.assertTrue(response.context['form'].errors)
 

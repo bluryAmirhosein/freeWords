@@ -101,18 +101,30 @@ class HomeView(ListView):
         context['top_tags_posts'] = top_tags_posts
 
         return context
+
+
 class BlogPostDetailView(DetailView):
+    """
+    View for displaying the details of a single blog post.
+    Handles fetching post details, caching approved comments, top liked posts,
+    and processing user interactions such as liking or commenting on the post.
+    """
     model = BlogPost
     template_name = 'core/post-detail.html'
     context_object_name = 'post'
 
     def get_context_data(self, **kwargs):
+        """
+        Adds extra context data including cached approved comments,
+        a comment form, a reply form, top liked posts, and like status.
+        """
         context = super().get_context_data(**kwargs)
 
         post_id = self.object.id
         approved_comments_cache_key = f'approved_comments_{post_id}'
         approved_comments = cache.get(approved_comments_cache_key)
 
+        # Cache approved comments to reduce database queries
         if not approved_comments:
             approved_comments = list(self.object.comments.filter(is_approved=True))
             cache.set(approved_comments_cache_key, approved_comments, timeout=1200)
@@ -121,6 +133,7 @@ class BlogPostDetailView(DetailView):
         context['comment_form'] = CommentForm()
         context['reply_form'] = ReplyForm
 
+        # Cache top 4 most liked posts to improve performance
         top_liked_posts_cache_key = 'top_liked_posts'
         top_liked_posts = cache.get(top_liked_posts_cache_key)
 
@@ -129,6 +142,7 @@ class BlogPostDetailView(DetailView):
             cache.set(top_liked_posts_cache_key, top_liked_posts, timeout=21600)
         context['top_liked_posts'] = top_liked_posts
 
+        # Check if the current user has liked this post (cached for performance)
         user = self.request.user
         context['is_liked'] = False
         if user.is_authenticated:
@@ -142,7 +156,13 @@ class BlogPostDetailView(DetailView):
         return context
 
     def post(self, request, *args, **kwargs):
+        """
+        Handles form submissions for adding or editing comments.
+        Ensures only authenticated users can post comments and updates the cache accordingly.
+        """
         self.object = self.get_object()
+
+        # Handle new comment submission
         if 'new_comment' in request.POST:
             form = CommentForm(request.POST)
             if request.user.is_authenticated:
@@ -152,16 +172,20 @@ class BlogPostDetailView(DetailView):
                     comment.user = request.user
                     comment.save()
 
+                    # Clear cache to ensure updated comments are fetched
                     cache.delete(f"approved_comments_{self.object.id}")
 
-                    messages.success(request, 'Your comment will be displayed after it is approved by the administrator'
-                                              '.')
+                    messages.success(request,
+                                     'Your comment will be displayed after it is approved by the administrator.')
                     return redirect(reverse('core:post-detail', args=[self.object.pk, self.object.slug]))
-                messages.error(request, 'Somthing went Wrong')
+
+                messages.error(request, 'Something went wrong')
                 return self.render_to_response(self.get_context_data(comment_form=form))
+
             messages.info(request, 'Please login first')
             return redirect(reverse('core:post-detail', args=[self.object.pk, self.object.slug]))
 
+        # Handle editing an existing comment
         if 'edit_comment' in request.POST:
             comment_id = request.POST.get('comment_id')
             comment = get_object_or_404(Comment, id=comment_id, user=request.user)
@@ -169,22 +193,32 @@ class BlogPostDetailView(DetailView):
             if form.is_valid():
                 form.save()
 
+                # Clear cache to ensure updated comments are reflected
                 cache.delete(f"approved_comments_{self.object.id}")
 
-                messages.success(request, 'your comment was successfully edit!')
+                messages.success(request, 'Your comment was successfully edited!')
                 return redirect('core:post-detail', pk=self.object.pk, slug=self.object.slug)
+
             context = self.get_context_data()
             context['comment_form'] = form
             return self.render_to_response(context)
 
 
 class ReplyCommentView(View):
+    """
+    Handles replies to comments on a blog post.
+    Allows authenticated users to submit replies and edit their own replies.
+    """
     form_class = ReplyForm
 
     def post(self, request, post_id, comment_id):
+        """
+        Processes reply submissions and edits to existing replies.
+        """
         post = get_object_or_404(BlogPost, id=post_id)
         comment = get_object_or_404(Comment, id=comment_id)
 
+        # Handle reply editing
         if 'edit_reply' in request.POST:
             reply_id = request.POST.get('reply_id')
             reply = get_object_or_404(Comment, id=reply_id, reply=comment)
@@ -201,13 +235,14 @@ class ReplyCommentView(View):
 
             return redirect('core:post-detail', pk=post.pk, slug=post.slug)
 
+        # Handle new reply submission
         if request.user.is_authenticated:
             form = self.form_class(request.POST)
             if form.is_valid():
                 reply = form.save(commit=False)
                 reply.user = request.user
                 reply.post = post
-                reply.reply = comment
+                reply.reply = comment  # Assign reply to the correct comment
                 reply.is_reply = True
                 reply.save()
                 messages.success(request, 'Your reply submitted successfully.')
@@ -221,6 +256,7 @@ class ReplyCommentView(View):
 
 
 class DeleteReplyView(View):
+    """Allows an authenticated user to delete their own reply."""
     def get(self, request, reply_id):
         reply = get_object_or_404(Comment, id=reply_id, is_reply=True)
         if request.user.is_authenticated and reply.user == request.user:
@@ -232,8 +268,8 @@ class DeleteReplyView(View):
         messages.error(request, 'You are not authorized to delete this reply.')
         return redirect('core:post-detail', pk=reply.post.pk, slug=reply.post.slug)
 
-
 class DeleteCommentView(View):
+    """Allows a user to delete their own comment from a post."""
     def get(self,  request, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
         if comment.user == request.user:
@@ -245,8 +281,15 @@ class DeleteCommentView(View):
 
 
 class LikePostView(View):
+    """
+    Handles liking and unliking a blog post.
+    Users must be authenticated to like a post. If the user has already liked the post,
+    the like is removed (unlike); otherwise, a new like is created.
+    """
+
     def post(self, request, pk, slug):
         post = get_object_or_404(BlogPost, pk=pk, slug=slug)
+
         if not request.user.is_authenticated:
             messages.info(request, 'Please login to like this post.')
             return redirect('core:post-detail', pk=post.pk, slug=post.slug)
@@ -254,24 +297,34 @@ class LikePostView(View):
         existing_like = PostLike.objects.filter(user=request.user, post=post)
 
         if existing_like.exists():
-        # if existing_like[0] > 0:
+            # If the user has already liked the post, remove the like
             existing_like.delete()
             messages.success(request, 'You have unliked this post.')
         else:
+            # Otherwise, create a new like
             PostLike.objects.create(user=request.user, post=post)
             messages.success(request, 'You have liked this post.')
+
         return redirect('core:post-detail', pk=post.pk, slug=post.slug)
 
 
 class PostCreationView(UserPassesTestMixin, View):
+    """
+    Handles blog post creation and editing.
+    Only superusers can create or edit posts.
+    """
     template_name = 'core/post-creation.html'
     from_class = PostCreationForm
     tags = Tag.objects.all()
 
     def test_func(self):
+        """Ensures only superusers can access this view."""
         return self.request.user.is_superuser
 
     def get(self, request, pk=None):
+        """
+        Displays the post creation form. If `pk` is provided, loads an existing post for editing.
+        """
         if pk:
             post = get_object_or_404(BlogPost, pk=pk)
             form = self.from_class(instance=post)
@@ -281,6 +334,9 @@ class PostCreationView(UserPassesTestMixin, View):
             return render(request, self.template_name, {'form': form, 'tags': self.tags})
 
     def post(self, request, pk=None):
+        """
+        Handles post submission. Creates a new post or updates an existing one.
+        """
         if pk:
             post = get_object_or_404(BlogPost, pk=pk)
             form = self.from_class(request.POST, request.FILES, instance=post)
@@ -290,23 +346,29 @@ class PostCreationView(UserPassesTestMixin, View):
         if form.is_valid():
             cd = form.cleaned_data
             post = form.save(commit=False)
-            post.cover_image = request.FILES.get('cropped_image', cd['cover_image'])
+            post.cover_image = request.FILES.get('cropped_image', cd['cover_image'])  # Handle cover image
             post.save()
-            post.tags.set(cd['tags'])
+            post.tags.set(cd['tags'])  # Assign tags to the post
 
             messages.success(request,
                              'The post was updated successfully' if pk else 'The post was created successfully')
             return redirect('core:home') if not pk else redirect('core:post-detail', pk=post.pk, slug=post.slug)
-        messages.error(request, 'Please Enter valid information')
+
+        messages.error(request, 'Please enter valid information')
         return render(request, self.template_name, {'form': form, 'tags': self.tags})
 
 
 class PostsShowView(ListView):
+    """
+    Displays a list of blog posts with optional search functionality.
+    Retrieves comment and like counts using caching for better performance.
+    """
     model = BlogPost
     template_name = 'core/posts.html'
     context_object_name = 'obj'
 
     def get_queryset(self):
+        """Retrieves all blog posts and filters them based on the search query if provided."""
         queryset = BlogPost.objects.all()
         query = self.request.GET.get('q', None)
 
@@ -315,6 +377,7 @@ class PostsShowView(ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
+        """Adds comment and like counts to each blog post in the context."""
         context = super().get_context_data(**kwargs)
 
         comments_cache_key = 'approved_comments'
@@ -325,7 +388,6 @@ class PostsShowView(ListView):
                 approved_comments=Count('comments', filter=Q(comments__is_approved=True))
             ).values('id', 'approved_comments')
             cache.set(comments_cache_key, comments, timeout=1200)
-        # context['comment'] = comments
 
         comment_dict = {item['id']: item['approved_comments'] for item in comments}
 
@@ -335,7 +397,6 @@ class PostsShowView(ListView):
         if not likes:
             likes = BlogPost.objects.annotate(like_count=Count('likes')).values('id', 'like_count')
             cache.set(likes_cache_key, likes, timeout=1200)
-        # context['likes'] = likes
 
         like_dict = {item['id']: item['like_count'] for item in likes}
 
@@ -349,10 +410,12 @@ class PostsShowView(ListView):
 
 
 class DeletePostView(UserPassesTestMixin, View):
+    """Handles the deletion of a blog post by an admin user."""
     def test_func(self):
         return self.request.user.is_superuser
 
     def get(self, request, pk):
+        """Deletes the selected post and redirects to the post list."""
         post = get_object_or_404(BlogPost, pk=pk)
         post.delete()
         messages.success(request, 'The post was deleted successfully.')
