@@ -36,11 +36,7 @@ class HomeView(ListView):
         """
         # Get the default context from the parent class (ListView)
         context = super().get_context_data(**kwargs)
-
-        # Cache key for storing approved comments per post
         comments_cache_key = 'approved_comments_per_post'
-
-        # Check if the approved comments are available in the cache
         comments = cache.get(comments_cache_key)
 
         # If comments are not in the cache, retrieve them from the database
@@ -48,34 +44,26 @@ class HomeView(ListView):
             comments = BlogPost.objects.annotate(
                 approved_comments=Count('comments', filter=Q(comments__is_approved=True))
             ).values('id', 'approved_comments')
-            # Cache the results for 20 minutes
             cache.set(comments_cache_key, comments, timeout=1200)
 
-        # Convert the list of comments into a dictionary for faster access
         comment_dict = {item['id']: item['approved_comments'] for item in comments}
 
-        # Add the approved comments count to each post in the context
         for post in context['obj']:
             post.approved_comments = comment_dict.get(post.id, 0)
 
         # Cache key for storing the user profile
         profile_cache_key = f"profile_{self.request.user.id}"
-
-        # Check if the profile is available in the cache
         profile = cache.get(profile_cache_key)
 
         # If the profile is not in the cache, retrieve it from the database
         if profile is None:
             try:
                 profile = ProfileUser.objects.get(user=self.request.user.id)
-                # Cache the profile for 12 hours
                 cache.set(profile_cache_key, profile, timeout=43200)
             except ProfileUser.DoesNotExist:
                 profile = None
-                # Cache the result if the profile does not exist
                 cache.set(profile_cache_key, profile, timeout=43200)
 
-        # Add the profile to the context
         context['profile'] = profile
 
         # Cache key for storing the top liked posts
@@ -84,9 +72,7 @@ class HomeView(ListView):
         # If top liked posts are not in the cache, retrieve them from the database
         if not top_liked_posts:
             top_liked_posts = BlogPost.objects.annotate(like_count=Count('likes')).order_by('-like_count')[:4]
-            # Cache the results for 6 hours
             cache.set('top_liked_posts', top_liked_posts, timeout=21600)
-        # Add the top liked posts to the context
         context['top_liked_posts'] = top_liked_posts
 
         # Cache key for storing the top tagged posts
@@ -95,9 +81,7 @@ class HomeView(ListView):
         # If top tagged posts are not in the cache, retrieve them from the database
         if not top_tags_posts:
             top_tags_posts = Tag.objects.annotate(post_count=Count('blogpost')).order_by('-post_count')
-            # Cache the results for 6 hours
             cache.set('top_tags_posts', top_tags_posts, timeout=21600)
-        # Add the top tagged posts to the context
         context['top_tags_posts'] = top_tags_posts
 
         return context
@@ -149,6 +133,7 @@ class BlogPostDetailView(DetailView):
             user_like_cache_key = f'user_like_{user.id}_liked_post_{post_id}'
             is_liked = cache.get(user_like_cache_key)
             if is_liked is None:
+                # If the like status is not cached, query the database and cache the result
                 is_liked = PostLike.objects.filter(user=self.request.user, post=post_id).exists()
                 cache.set(user_like_cache_key, is_liked, timeout=3600)
             context['is_liked'] = is_liked

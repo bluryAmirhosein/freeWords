@@ -7,6 +7,10 @@ from PIL import Image
 
 
 class Tag(models.Model):
+    """
+    Represents a Tag that can be associated with blog posts.
+    Tags are used to categorize or label blog posts.
+    """
     name = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -15,6 +19,10 @@ class Tag(models.Model):
 
 
 class BlogPost(models.Model):
+    """
+    Represents a blog post with a title, description, cover image, and associated tags.
+    Includes a method for generating the absolute URL of the post.
+    """
     title_heading = models.CharField(max_length=250)
     slug = models.SlugField(max_length=250, null=True, blank=True)
     title_description = models.CharField(max_length=250)
@@ -34,10 +42,18 @@ class BlogPost(models.Model):
         return self.title_heading
 
     def get_absolute_url(self):
+        """
+        Returns the absolute URL of the blog post.
+        Used for generating the URL dynamically.
+        """
         return reverse('core:post-detail', args=(self.id, self.slug))
 
 
 class Comment(models.Model):
+    """
+    Represents a comment on a blog post.
+    It can also represent a reply to another comment.
+    """
     post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     content = models.TextField()
@@ -55,6 +71,10 @@ class Comment(models.Model):
 
 
 class PostLike(models.Model):
+    """
+    Represents a like on a blog post by a user.
+    Ensures that a user can like a post only once.
+    """
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)

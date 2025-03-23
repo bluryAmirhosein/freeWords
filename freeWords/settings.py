@@ -215,9 +215,19 @@ CACHES = {
 #     },
 # }
 
+
 # Celery config
 
+# URL for the broker (message queue). 'amqp' is used for RabbitMQ.
+# 'guest:guest' is the default username and password for RabbitMQ, and 'localhost:5672' is the default RabbitMQ host and port.
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+
+# Backend used to store the results of tasks after they are completed.
+# 'rpc://' uses a remote procedure call to send results back.
 CELERY_RESULT_BACKEND = 'rpc://'
+
+# Accepting content in JSON format for tasks.
 CELERY_ACCEPT_CONTENT = ['json']
+
+# Serializer for tasks, ensuring that the tasks are serialized in JSON format.
 CELERY_TASK_SERIALIZER = 'json'
