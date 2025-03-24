@@ -180,6 +180,7 @@ class BlogPostDetailViewTest(TestCase):
         self.assertIsInstance(cached_posts, list, "Cached posts should be a list")
         self.assertIn(popular_post, cached_posts, "Popular post should be in cached top liked posts")
 
+
 class ReplyCommentViewTest(TestCase):
     def setUp(self):
         self.user = CustomUser.objects.create_user(username='testuser', password='12345', email='user@email.com')
