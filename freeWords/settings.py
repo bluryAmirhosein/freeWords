@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'ckeditor_uploader',
     'image_cropping',
     'easy_thumbnails',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -160,6 +161,27 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    }
+}
+
+# ARVAN CLOUD SETTINGS
+
+DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+AWS_ACCESS_KEY_ID = '83e887a6-5e0c-4eb1-afca-9ec3a5fcd70f'
+AWS_SECRET_ACCESS_KEY = 'b2f346de4d78543b33b83e3236435106da5c861c7804b87eb38be1113f998e89'
+AWS_S3_ENDPOINT_URL = 'https://s3.ir-tbz-sh1.arvanstorage.ir'
+AWS_STORAGE_BUCKET_NAME = 'freewordsfiles1234'
+AWS_SERVICE_NAME = 's3'
+AWS_S3_FILE_OVERWRITE = False
+
+
+
 CKEDITOR_CONFIGS = {
     'default': {
         'toolbar': 'full',
@@ -231,3 +253,6 @@ CELERY_ACCEPT_CONTENT = ['json']
 
 # Serializer for tasks, ensuring that the tasks are serialized in JSON format.
 CELERY_TASK_SERIALIZER = 'json'
+
+
+
