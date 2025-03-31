@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
 class CustomUser(AbstractUser):
@@ -27,3 +30,21 @@ class ProfileUser(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def save(self, *args, **kwargs):
+        if self.photo:
+            img = Image.open(self.photo)
+            img = img.convert("RGB")
+            img = img.copy()
+            img_io = BytesIO()
+            img.save(img_io, format="WEBP", quality=50, optimize=True)
+
+        self.photo = InMemoryUploadedFile(
+            file=img_io,
+            field_name=None,
+            name=self.photo.name.split('.')[0] + ".webp",
+            content_type="image/webp",
+            size=img_io.tell(),
+            charset=None
+        )
+        super().save(*args, **kwargs)

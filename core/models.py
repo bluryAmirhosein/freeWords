@@ -4,6 +4,8 @@ from django.urls import reverse
 from account.models import CustomUser
 from image_cropping import ImageCropField, ImageRatioField
 from PIL import Image
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 
 class Tag(models.Model):
@@ -29,9 +31,8 @@ class BlogPost(models.Model):
     description = RichTextUploadingField(verbose_name='Description')
     cover_image = models.ImageField(upload_to='blog/cover_image/', blank=True, null=True, verbose_name='Cover Image')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created At')
-
-
     tags = models.ManyToManyField(Tag, blank=True)
+
 
     class Meta:
         verbose_name = 'Blog Post'
@@ -47,6 +48,24 @@ class BlogPost(models.Model):
         Used for generating the URL dynamically.
         """
         return reverse('core:post-detail', args=(self.id, self.slug))
+
+    def save(self, *args, **kwargs):
+        if self.cover_image:
+            img = Image.open(self.cover_image)
+            img = img.convert("RGB")
+            img = img.copy()
+            img_io = BytesIO()
+            img.save(img_io, format="WEBP", quality=30, optimize=True)
+
+        self.cover_image = InMemoryUploadedFile(
+            file=img_io,
+            field_name=None,
+            name=self.cover_image.name.split('.')[0] + ".webp",
+            content_type="image/webp",
+            size=img_io.tell(),
+            charset=None
+        )
+        super().save(*args, **kwargs)
 
 
 class Comment(models.Model):

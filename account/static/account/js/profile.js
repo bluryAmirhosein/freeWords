@@ -46,3 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> fix/minor-bugs

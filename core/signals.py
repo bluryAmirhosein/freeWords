@@ -1,9 +1,11 @@
+# from Tools.demo.mcast import sender
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.cache import cache
 from .models import Comment, BlogPost, PostLike
 from account.models import ProfileUser
 from django.db.models import Count, Q
+
 
 
 def update_comments_cache():
