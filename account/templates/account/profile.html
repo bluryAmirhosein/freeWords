@@ -196,7 +196,7 @@
           </div>
     </div>
 
-<<<<<<< HEAD
+{#<<<<<<< HEAD#}
 <!-- modal for cropping image -->
 <div id="crop-modal">
     <div id="crop-container">
@@ -209,50 +209,70 @@
     <script src="{% static 'account/js/profile.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
-=======
-<<<<<<< Updated upstream
-=======
+{#=======#}
+{#<<<<<<< Updated upstream#}
+{#=======#}
 
     <script src="{% static 'account/js/profile.js' %}"></script>
 
->>>>>>> Stashed changes
->>>>>>> fix/minor-bugs
+{#>>>>>>> Stashed changes#}
+{#>>>>>>> fix/minor-bugs#}
 {% endblock %}
 
 {% block js %}
-document.getElementById('id_photo').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const image = document.getElementById('image-to-crop');
-            image.src = e.target.result;
-            document.getElementById('crop-modal').style.display = 'flex';
+document.addEventListener("DOMContentLoaded", function () {
+    const inputFile = document.getElementById("id_photo");
+    const profileImage = document.getElementById("profileImage");
+    const cropModal = document.getElementById("crop-modal");
+    const cropContainer = document.getElementById("image-to-crop");
+    const cropButton = document.getElementById("crop-button");
+    let cropper;
 
-            const cropper = new Cropper(image, {
-                aspectRatio: 1,
-                viewMode: 1,
-            });
+    inputFile.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                cropContainer.src = e.target.result;
+                cropModal.style.display = "flex";
 
-            document.getElementById('crop-button').onclick = function (e) {
-                e.preventDefault();
-                const canvas = cropper.getCroppedCanvas({ width: 1400, height: 1400 });
-
-                canvas.toBlob(function (blob) {
-                    const url = URL.createObjectURL(blob);
-                    document.getElementById('profileImage').src = url;
-                    document.getElementById('crop-modal').style.display = 'none';
+                // اگر cropper قبلاً مقداردهی شده باشد، آن را از بین ببریم
+                if (cropper) {
                     cropper.destroy();
-                }, 'image/jpeg');
+                }
+
+                cropper = new Cropper(cropContainer, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                });
             };
-        };
-        reader.readAsDataURL(file);
-    }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    cropButton.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (!cropper) return;
+
+        const canvas = cropper.getCroppedCanvas({ width: 1400, height: 1400 });
+        canvas.toBlob(function (blob) {
+            const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
+
+            // ایجاد DataTransfer برای تنظیم مقدار جدید در input file
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            inputFile.files = dataTransfer.files;
+
+            // نمایش تصویر کراپ‌شده
+            profileImage.src = URL.createObjectURL(blob);
+            cropModal.style.display = "none";
+            cropper.destroy();
+        }, "image/jpeg");
+    });
 });
 
 function changeProfileImage() {
-    document.getElementById('id_photo').click();
+    document.getElementById("id_photo").click();
 }
-
 {% endblock %}
 
