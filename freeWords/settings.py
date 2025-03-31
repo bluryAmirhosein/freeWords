@@ -159,6 +159,31 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
+<<<<<<< Updated upstream
+=======
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    }
+}
+
+# ARVAN CLOUD SETTINGS
+
+DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+AWS_ACCESS_KEY_ID = '83e887a6-5e0c-4eb1-afca-9ec3a5fcd70f'
+AWS_SECRET_ACCESS_KEY = 'b2f346de4d78543b33b83e3236435106da5c861c7804b87eb38be1113f998e89'
+AWS_S3_ENDPOINT_URL = 'https://s3.ir-thr-at1.arvanstorage.ir'
+AWS_STORAGE_BUCKET_NAME = 'myfreewordimages1'
+AWS_SERVICE_NAME = 's3'
+AWS_S3_FILE_OVERWRITE = False
+
+
+
+
+>>>>>>> Stashed changes
 CKEDITOR_CONFIGS = {
     'default': {
         'toolbar': 'full',
