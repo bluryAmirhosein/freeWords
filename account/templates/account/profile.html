@@ -3,6 +3,28 @@
 
 {% block extera_header %}
     <link rel="stylesheet" href="{% static 'account/css/profile.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+{% endblock %}
+
+{% block extera_style %}
+    #crop-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+    #crop-container {
+      background: white;
+      padding: 20px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+    }
 {% endblock %}
 
 {% block content %}
@@ -174,6 +196,54 @@
           </div>
     </div>
 
+<!-- modal for cropping image -->
+<div id="crop-modal">
+    <div id="crop-container">
+      <img id="image-to-crop" src="" alt="To Crop" style="max-width: 100%;">
+      <br>
+      <button id="crop-button" class="w3-button w3-black w3-margin-top">Crop and Upload</button>
+    </div>
+</div>
+
     <script src="{% static 'account/js/profile.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
 {% endblock %}
+
+{% block js %}
+document.getElementById('id_photo').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const image = document.getElementById('image-to-crop');
+            image.src = e.target.result;
+            document.getElementById('crop-modal').style.display = 'flex';
+
+            const cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1,
+            });
+
+            document.getElementById('crop-button').onclick = function (e) {
+                e.preventDefault();
+                const canvas = cropper.getCroppedCanvas({ width: 1400, height: 1400 });
+
+                canvas.toBlob(function (blob) {
+                    const url = URL.createObjectURL(blob);
+                    document.getElementById('profileImage').src = url;
+                    document.getElementById('crop-modal').style.display = 'none';
+                    cropper.destroy();
+                }, 'image/jpeg');
+            };
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function changeProfileImage() {
+    document.getElementById('id_photo').click();
+}
+
+{% endblock %}
+
