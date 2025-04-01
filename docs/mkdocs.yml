@@ -1,6 +1,24 @@
 site_name: freeWords Documentation
 nav:
   - Home: index.md
+  - Views:
+      - Core Views: views/core_views.md
+      - Account Views: views/account_views.md
+  - Models:
+      - Core Models: models/core_models.md
+      - Account Models: models/account_models.md
+  - Forms:
+      - Core Forms: forms/core_forms.md
+      - Account Forms: forms/account_forms.md
+  - Admin:
+      - Core Admin: admin/core_admin.md
+      - Account Admin: admin/account_admin.md
+  - more:
+      - Core Urls: urls/core_urls.md
+      - Account Urls: urls/account_urls.md
+      - Core Signals: signals/core_signals.md
+      - Account Signals: signals/account_signals.md
+
 
 plugins:
   - search
