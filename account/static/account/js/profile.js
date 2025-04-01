@@ -45,8 +45,3 @@ document.addEventListener('DOMContentLoaded', function () {
         editBtn.style.display = 'inline-block';
     });
 });
-
-<<<<<<< HEAD
-=======
-
->>>>>>> fix/minor-bugs

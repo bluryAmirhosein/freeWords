@@ -209,14 +209,7 @@
     <script src="{% static 'account/js/profile.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
-{#=======#}
-{#<<<<<<< Updated upstream#}
-{#=======#}
 
-    <script src="{% static 'account/js/profile.js' %}"></script>
-
-{#>>>>>>> Stashed changes#}
-{#>>>>>>> fix/minor-bugs#}
 {% endblock %}
 
 {% block js %}
@@ -236,7 +229,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 cropContainer.src = e.target.result;
                 cropModal.style.display = "flex";
 
-                // اگر cropper قبلاً مقداردهی شده باشد، آن را از بین ببریم
                 if (cropper) {
                     cropper.destroy();
                 }
@@ -258,12 +250,10 @@ document.addEventListener("DOMContentLoaded", function () {
         canvas.toBlob(function (blob) {
             const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
 
-            // ایجاد DataTransfer برای تنظیم مقدار جدید در input file
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(file);
             inputFile.files = dataTransfer.files;
 
-            // نمایش تصویر کراپ‌شده
             profileImage.src = URL.createObjectURL(blob);
             cropModal.style.display = "none";
             cropper.destroy();
