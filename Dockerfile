@@ -3,8 +3,7 @@ FROM python:3.11.1-slim
 WORKDIR /app
 COPY requirements.txt /app/
 
-RUN pip install -U pip && pip install -r requirements.txt && \
-    RUN python manage.py collectstatic --noinput
+RUN pip install -U pip && pip install -r requirements.txt
 
 COPY . /app/
 
