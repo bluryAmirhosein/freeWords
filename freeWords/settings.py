@@ -92,9 +92,9 @@ DATABASES = {
         'NAME': 'freewords',
         'USER': 'postgres',
         'PASSWORD': 'admin',
-        'HOST': 'postgres',
+        # 'HOST': 'postgres',
         # for local host testing
-        # 'HOST': 'localhost',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
@@ -139,9 +139,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'freeWords', 'static'),
-    os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'core/static'),
-    os.path.join(BASE_DIR, 'account/static'),
 ]
 
 # Default primary key field type
@@ -203,45 +200,25 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.filters',
 )
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/3',
-        'OPTION': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
-
-
-# For Local Host Testing
 # CACHES = {
 #     'default': {
-#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-#         'LOCATION': 'unique-snowflake',
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://redis:6379/3',
+#         'OPTION': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
 #     }
 # }
 
-# import os
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'DEBUG',
-#             'class': 'logging.FileHandler',
-#             'filename': os.path.join(BASE_DIR, 'debug.log'),
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
+# For Local Host Testing
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
 
 
 # Celery config

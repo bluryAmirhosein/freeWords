@@ -45,3 +45,54 @@ document.addEventListener('DOMContentLoaded', function () {
         editBtn.style.display = 'inline-block';
     });
 });
+document.addEventListener("DOMContentLoaded", function () {
+    const inputFile = document.getElementById("id_photo");
+    const profileImage = document.getElementById("profileImage");
+    const cropModal = document.getElementById("crop-modal");
+    const cropContainer = document.getElementById("image-to-crop");
+    const cropButton = document.getElementById("crop-button");
+    let cropper;
+
+    inputFile.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                cropContainer.src = e.target.result;
+                cropModal.style.display = "flex";
+
+                if (cropper) {
+                    cropper.destroy();
+                }
+
+                cropper = new Cropper(cropContainer, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    cropButton.addEventListener("click", function (e) {
+        e.preventDefault();
+        if (!cropper) return;
+
+        const canvas = cropper.getCroppedCanvas({ width: 1400, height: 1400 });
+        canvas.toBlob(function (blob) {
+            const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
+
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            inputFile.files = dataTransfer.files;
+
+            profileImage.src = URL.createObjectURL(blob);
+            cropModal.style.display = "none";
+            cropper.destroy();
+        }, "image/jpeg");
+    });
+});
+
+function changeProfileImage() {
+    document.getElementById("id_photo").click();
+}

@@ -2,7 +2,7 @@
 
 services:
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:3.9
     networks:
       - main
     ports:
@@ -11,7 +11,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres:latest
+    image: postgres:15
     environment:
       - POSTGRES_DB=freewords
       - POSTGRES_USER=postgres
@@ -31,7 +31,6 @@ services:
       - app
       - rabbitmq
       - postgres
-    build: .
     environment:
       - C_FORCE_ROOT="true"
     networks:
@@ -39,7 +38,7 @@ services:
     restart: always
 
   redis:
-    image: redis:latest
+    image: redis:6.2
     ports:
       - "6379:6379"
     networks:
@@ -54,7 +53,6 @@ services:
     volumes:
       - .:/app/
       - ./freeWords/static:/app/freeWords/static
-      - ./staticfiles:/app/staticfiles
     depends_on:
       - postgres
       - rabbitmq
