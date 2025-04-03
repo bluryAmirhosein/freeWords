@@ -92,7 +92,9 @@ DATABASES = {
         'NAME': 'freewords',
         'USER': 'postgres',
         'PASSWORD': 'admin',
-        'HOST': 'localhost',
+        'HOST': 'postgres',
+        # for local host testing
+        # 'HOST': 'localhost',
         'PORT': '5432',
     }
 }
@@ -134,9 +136,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'freeWords', 'static'),
+    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'core/static'),
+    os.path.join(BASE_DIR, 'account/static'),
 ]
 
 # Default primary key field type
@@ -198,22 +203,24 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.filters',
 )
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': 'redis://localhost:6379/3',
-#         'OPTION': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#         }
-#     }
-# }
-
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/3',
+        'OPTION': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
     }
 }
+
+
+# For Local Host Testing
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#         'LOCATION': 'unique-snowflake',
+#     }
+# }
 
 # import os
 
@@ -241,7 +248,7 @@ CACHES = {
 
 # URL for the broker (message queue). 'amqp' is used for RabbitMQ.
 # 'guest:guest' is the default username and password for RabbitMQ, and 'localhost:5672' is the default RabbitMQ host and port.
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672//'
 
 # Backend used to store the results of tasks after they are completed.
 # 'rpc://' uses a remote procedure call to send results back.
