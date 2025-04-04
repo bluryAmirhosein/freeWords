@@ -49,11 +49,10 @@ services:
   app:
     build: .
     command: >
-      bash -c "python manage.py migrate && exec gunicorn freeWords.wsgi:application --bind 0.0.0.0:8000"
+      bash -c "python manage.py collectstatic --noinput && python manage.py migrate && exec gunicorn freeWords.wsgi:application --bind 0.0.0.0:8000"
     container_name: app
     volumes:
       - .:/app/
-      - ./freeWords/static:/app/freeWords/static
     depends_on:
       - postgres
       - rabbitmq

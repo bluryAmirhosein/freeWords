@@ -1,0 +1,39 @@
+body, h1 {font-family: "Raleway", sans-serif}
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      background-color: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .login-container h1 {
+      text-align: center;
+      color: #444;
+      margin-bottom: 10px;
+    }
+    .login-container p {
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    .login-container button {
+      width: 100%;
+    }
+    .input-error {
+        border-color: #f44336 !important;
+        background-color: #fdecea;
+    }
+    .error-message {
+      color: #f44336;
+      font-size: 12px;
+      margin: 5px 0 5px 0;
+      padding-left: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .content-wrapper{
+    padding: 78px;
+    }

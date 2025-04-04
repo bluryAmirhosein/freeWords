@@ -9,4 +9,6 @@ COPY . /app/
 
 EXPOSE 8000
 
+RUN python manage.py collectstatic --noinput
+
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "freeWords.wsgi:application"]
