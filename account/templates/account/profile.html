@@ -28,7 +28,7 @@
                           {% if profile.photo %}
                             <img id="profileImage" src="{{ profile.photo.url }}" alt="Profile Image" class="w3-circle" />
                           {% else %}
-                            <img id="profileImage" src="{% static 'images/default-avatar.png' %}" alt="Default Profile Image" class="w3-circle" />
+                            <img id="profileImage" src="{% static 'account/img/default-avatar.png' %}" alt="Default Profile Image" class="w3-circle" />
                           {% endif %}
                         <br />
                         <button type="button" class="w3-button w3-white w3-border" onclick="changeProfileImage()">Change Profile Image</button>

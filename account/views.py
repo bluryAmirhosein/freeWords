@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from . forms import SignUpForm, ForgetPasswordForm, ResetPasswordForm
 from django.contrib import messages
-from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
 from .decorators import redirect_if_authenticated
 from django.utils.decorators import method_decorator
