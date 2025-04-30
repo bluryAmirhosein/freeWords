@@ -1,9 +1,0 @@
-.pagination .w3-button {
-    margin: 0 5px;
-
-}
-
-.pagination .w3-button.disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-}
