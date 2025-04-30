@@ -6,20 +6,20 @@ services:
     networks:
       - main
     ports:
-      - "5672:5672"
+      - "YOUR POSTS"
     restart: always
 
   postgres:
     container_name: postgres
     image: postgres:15
     environment:
-      - POSTGRES_DB=freewords
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=YOUR DBNAME
+      - POSTGRES_USER=YOUR USERNAME
+      - POSTGRES_PASSWORD=YOUR PASSWORD
     networks:
       - main
     ports:
-      - "5432:5432"
+      - "YOUR POSTS"
     restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -41,7 +41,7 @@ services:
   redis:
     image: redis:6.2
     ports:
-      - "6379:6379"
+      - "YOUR PORTS"
     networks:
       - main
     restart: always
@@ -58,7 +58,7 @@ services:
       - rabbitmq
       - redis
     ports:
-      - "8000:8000"
+      - "YOUR PORTS"
     networks:
       - main
     restart: always

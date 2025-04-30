@@ -21,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&*hid+ds_*#@93k+!fds%ok9gbh3-6+v5zthd6xi^me5ts3x3$'
+SECRET_KEY = 'YOUR SECRET KEY'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['YOUR HOST']
 
 
 # Application definition
@@ -53,7 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # "whitenoise.middleware.WhiteNoiseMiddleware", # for collecting static files when dockerise
+    "whitenoise.middleware.WhiteNoiseMiddleware", # for collecting static files when dockerise
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -90,13 +90,11 @@ WSGI_APPLICATION = 'freeWords.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'freewords',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        # 'HOST': 'postgres',
-        # for local host testing
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': 'YOUR DB NAME',
+        'USER': 'YOUR USERNAME',
+        'PASSWORD': 'YOUR PASSWORD',
+        'HOST': 'YOUR HOST',
+        'PORT': 'YOUR PORT',
     }
 }
 
@@ -154,11 +152,11 @@ AUTH_USER_MODEL = 'account.CustomUser'
 # Email Settings
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
+EMAIL_HOST = 'ANY HOST'
+EMAIL_PORT = 'ANY PORTS'
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'amircheraghali768@gmail.com'
-EMAIL_HOST_PASSWORD = 'pthm nwpw xapx jnmy'
+EMAIL_HOST_USER = 'YOUR EMAIL'
+EMAIL_HOST_PASSWORD = 'YOUR PASSWORD'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
@@ -176,13 +174,15 @@ STORAGES = {
     }
 }
 
+
 # ARVAN CLOUD SETTINGS
-DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
-AWS_ACCESS_KEY_ID = '83e887a6-5e0c-4eb1-afca-9ec3a5fcd70f'
-AWS_SECRET_ACCESS_KEY = 'b2f346de4d78543b33b83e3236435106da5c861c7804b87eb38be1113f998e89'
-AWS_S3_ENDPOINT_URL = 'https://s3.ir-thr-at1.arvanstorage.ir'
-AWS_STORAGE_BUCKET_NAME = 'myfreewordimages1'
-AWS_SERVICE_NAME = 's3'
+
+DEFAULT_FILE_STORAGE = "YOUR FILE STORAGE"
+AWS_ACCESS_KEY_ID = 'YOUR ACCESS KEY'
+AWS_SECRET_ACCESS_KEY = 'YOUR SECRET KEY'
+AWS_S3_ENDPOINT_URL = 'YOUR ENDPOINT'
+AWS_STORAGE_BUCKET_NAME = 'YOUR BUCKET NAME'
+AWS_SERVICE_NAME = 'YOUR SERVICE'
 AWS_S3_FILE_OVERWRITE = False
 
 
@@ -203,23 +203,13 @@ THUMBNAIL_PROCESSORS = (
     'easy_thumbnails.processors.filters',
 )
 
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': 'redis://redis:6379/3',
-#         'OPTION': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#         }
-#     }
-# }
-
-
-# For Local Host Testing
-
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'YOUR LOCATION',
+        'OPTION': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
     }
 }
 
@@ -228,8 +218,7 @@ CACHES = {
 # Celery config
 
 # URL for the broker (message queue). 'amqp' is used for RabbitMQ.
-# 'guest:guest' is the default username and password for RabbitMQ, and 'localhost:5672' is the default RabbitMQ host and port.
-CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672//'
+CELERY_BROKER_URL = 'amqp://YOURINFO:YOURINFO@rabbitmq:YOURPORT//'
 
 # Backend used to store the results of tasks after they are completed.
 # 'rpc://' uses a remote procedure call to send results back.
