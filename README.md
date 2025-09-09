@@ -76,11 +76,17 @@ python -m unittest discover
 ## 📸 Screenshots
 You can view the weblog environment.
 
-<img src="screenshots/home.png" alt="Home Page" width="600"/>
-<img src="screenshots/post-detail.png" alt="Post Detail" width="600"/>
-<img src="screenshots/admin.png" alt="Admin Panel" width="600"/>
-<img src="screenshots/signup.png" alt="Signup Form" width="600"/>
+- **Home Page**
+  ![Home Page](screenshots/home.png)
 
+- **Post Detail**
+  ![Post Detail](screenshots/post-detail.png)
+
+- **Admin Panel**
+  ![Admin Panel](screenshots/admin.png)
+
+- **Signup Form**
+  ![Signup Form](screenshots/signup.png)
 
 ---
 
