@@ -1,6 +1,7 @@
 # FREEWORDS
 
 **FREEWORDS** is a modern blog platform with a Django backend and a JavaScript + W3.CSS frontend. It combines simplicity with powerful features, enabling users to engage with content, manage profiles, and interact with posts through likes, comments, and replies.
+You can read more about this project in docs directory.
 
 ---
 
